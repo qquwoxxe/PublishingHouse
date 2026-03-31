@@ -1,0 +1,94 @@
+﻿@model List<PublishingHouse.Models.Book>
+
+@{
+    ViewBag.Title = "Список книг";
+
+    // Получаем ID текущей книги из Session
+    int? currentBookId = Session["CurrentBookId"] as int?;
+    var currentBook = currentBookId.HasValue ? Model.FirstOrDefault(b => b.Id == currentBookId) : null;
+}
+
+<h2>Список книг</h2>
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+
+@if (currentBook != null)
+{
+    <div class="alert alert-info">
+        <strong>📖 Текущая выбранная книга:</strong>
+        ID: @currentBook.Id |
+        Название: <strong>@currentBook.Title</strong> |
+        Автор: @currentBook.Author |
+        Год: @currentBook.Year
+    </div>
+}
+
+<p>
+    @Html.ActionLink("➕ Добавить новую книгу", "Create", null, new { @class = "btn btn-success" })
+</p>
+
+@if (Model.Count == 0)
+{
+    <div class="alert alert-warning">
+        <strong>Нет книг!</strong> Добавьте первую книгу, нажав кнопку выше.
+    </div>
+}
+else
+{
+    <table class="table table-bordered table-striped">
+        <thead class="thead-dark">
+            <tr>
+                <th>ID</th>
+                <th>Название</th>
+                <th>Автор</th>
+                <th>Жанр</th>
+                <th>Год</th>
+                <th>Страниц</th>
+                <th>ISBN</th>
+                <th>Цена</th>
+                <th>Действия</th>
+                <th>Выбрать</th>
+            </tr>
+        </thead>
+        <tbody>
+            @for (int i = 0; i < Model.Count; i++)
+            {
+                var book = Model[i];
+                var isCurrent = currentBookId.HasValue && currentBookId.Value == book.Id;
+
+                <tr class="@(isCurrent ? "table-primary" : "")">
+                    <td>@book.Id</td>
+                    <td><strong>@book.Title</strong></td>
+                    <td>@book.Author</td>
+                    <td>@book.Genre</td>
+                    <td>@book.Year</td>
+                    <td>@book.PageCount</td>
+                    <td>@book.ISBN</td>
+                    <td>@book.Price.ToString("C")</td>
+                    <td>
+                        @Html.ActionLink("Просмотр", "Details", new { id = book.Id }, new { @class = "btn btn-sm btn-info" })
+                        @Html.ActionLink("Редактировать", "Edit", new { id = book.Id }, new { @class = "btn btn-sm btn-warning" })
+                    </td>
+                    <td>
+                        @if (!isCurrent)
+                        {
+                            @Html.ActionLink("✅ Выбрать", "Select", new { id = book.Id }, new { @class = "btn btn-sm btn-primary" })
+                        }
+                        else
+                        {
+                            <span class="badge badge-success">Текущая</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
