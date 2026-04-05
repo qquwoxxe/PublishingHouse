@@ -1,50 +1,65 @@
-﻿@model List<PublishingHouse.Models.Book>
+﻿@using PublishingHouse.Helpers
+@model List<PublishingHouse.Models.Book>
 
 @{
     ViewBag.Title = "Список книг";
 
-    // Получаем ID текущей книги из Session
+    // ЧАСТЬ II: получение ID текущей книги из Session
     int? currentBookId = Session["CurrentBookId"] as int?;
     var currentBook = currentBookId.HasValue ? Model.FirstOrDefault(b => b.Id == currentBookId) : null;
+
+    // ЧАСТЬ III: чтение значения из TempData для выбора метода
+    bool useInternalMethod = TempData["UseInternalMethod"] != null && (bool)TempData["UseInternalMethod"];
+
+    // Сохраняем TempData для следующего запроса
+    TempData.Keep("UseInternalMethod");
 }
 
 <h2>Список книг</h2>
 
 @if (TempData["Success"] != null)
 {
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <div class="alert alert-success">
         @TempData["Success"]
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
     </div>
 }
 
 @if (currentBook != null)
 {
     <div class="alert alert-info">
-        <strong>📖 Текущая выбранная книга:</strong>
+        <strong>Текущая выбранная книга:</strong>
         ID: @currentBook.Id |
-        Название: <strong>@currentBook.Title</strong> |
-        Автор: @currentBook.Author |
-        Год: @currentBook.Year
+        Название: @currentBook.Title |
+        Автор: @currentBook.Author
     </div>
 }
 
 <p>
-    @Html.ActionLink("➕ Добавить новую книгу", "Create", null, new { @class = "btn btn-success" })
+    @Html.ActionLink("Добавить новую книгу", "Create", null, new { @class = "btn btn-success" })
 </p>
 
+@* ЧАСТЬ III: вызов вспомогательных методов в зависимости от TempData *@
+@if (useInternalMethod)
+{
+    @* Вызов ВНУТРЕННЕГО метода *@
+    var controller = (PublishingHouse.Controllers.BookController)ViewContext.Controller;
+    @controller.InternalBookList(Model, "Список книг (внутренний метод)")
+}
+else
+{
+    @* Вызов ВНЕШНЕГО метода *@
+    @Html.ExternalBookList(Model, "Список книг (внешний метод)")
+}
+
+@* ЧАСТЬ II: таблица с циклом for (вариант Б) *@
 @if (Model.Count == 0)
 {
-    <div class="alert alert-warning">
-        <strong>Нет книг!</strong> Добавьте первую книгу, нажав кнопку выше.
-    </div>
+    <p>Нет книг. Добавьте первую!</p>
 }
 else
 {
     <table class="table table-bordered table-striped">
-        <thead class="thead-dark">
+        <thead>
             <tr>
                 <th>ID</th>
                 <th>Название</th>
@@ -66,7 +81,7 @@ else
 
                 <tr class="@(isCurrent ? "table-primary" : "")">
                     <td>@book.Id</td>
-                    <td><strong>@book.Title</strong></td>
+                    <td>@book.Title</td>
                     <td>@book.Author</td>
                     <td>@book.Genre</td>
                     <td>@book.Year</td>
@@ -80,7 +95,7 @@ else
                     <td>
                         @if (!isCurrent)
                         {
-                            @Html.ActionLink("✅ Выбрать", "Select", new { id = book.Id }, new { @class = "btn btn-sm btn-primary" })
+                            @Html.ActionLink("Выбрать", "Select", new { id = book.Id }, new { @class = "btn btn-sm btn-primary" })
                         }
                         else
                         {

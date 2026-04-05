@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Web;
 using System.Web.Mvc;
 
@@ -9,32 +10,58 @@ namespace PublishingHouse.Controllers
 {
     public class BookController : Controller
     {
+        // ==================== ЧАСТЬ II ====================
+        // Хранилище книг в памяти (List<T> - вариант 2)
         private static List<Book> _books = new List<Book>();
         private static int _nextId = 1;
 
-        // GET: Book/Index - список всех книг
+        // ==================== ЧАСТЬ III ====================
+        // ВНУТРЕННИЙ вспомогательный метод (параметризованный)
+        public MvcHtmlString InternalBookList(List<Book> books, string title = "Мои книги")
+        {
+            var html = new StringBuilder();
+
+            html.Append($"<div class='internal-book-list' style='border: 2px solid green; padding: 15px; margin: 10px 0; border-radius: 8px;'>");
+            html.Append($"<h3 style='color: green;'>{title}</h3>");
+            html.Append("<ul>");
+
+            foreach (var book in books)
+            {
+                html.Append($"<li><strong>{book.Title}</strong> — {book.Author} ({book.Year}) | {book.PageCount} стр.</li>");
+            }
+
+            html.Append("</ul>");
+            html.Append("<p><em>Вызван ВНУТРЕННИЙ вспомогательный метод</em></p>");
+            html.Append("</div>");
+
+            return new MvcHtmlString(html.ToString());
+        }
+
+        // ЧАСТЬ II: просмотр всех данных
+        // ЧАСТЬ III: передача логического значения через TempData (вариант 2)
         public ActionResult Index()
         {
+            // ЧАСТЬ III: TempData для выбора метода
+            TempData["UseInternalMethod"] = true;  // true - внутренний, false - внешний
+
             return View(_books);
         }
 
-        // GET: Book/Select/{id} - выбор текущей книги (сохранение в Session)
+        // ЧАСТЬ II: сохранение текущего экземпляра через Session
         public ActionResult Select(int id)
         {
             var book = _books.FirstOrDefault(b => b.Id == id);
             if (book != null)
             {
-                // Сохраняем ID выбранной книги в Session
                 Session["CurrentBookId"] = id;
-                TempData["Success"] = $"Выбрана книга: {book.Title} ({book.Author})";
+                TempData["Success"] = $"Выбрана книга: {book.Title}";
             }
             return RedirectToAction("Index");
         }
 
-        // GET: Book/Details/{id} - просмотр одной книги
+        // ЧАСТЬ I: просмотр одной книги
         public ActionResult Details(int? id)
         {
-            // Если id не передан, используем текущую книгу из Session
             if (id == null)
             {
                 int? currentId = Session["CurrentBookId"] as int?;
@@ -56,13 +83,11 @@ namespace PublishingHouse.Controllers
                 return HttpNotFound();
             }
 
-            // Обновляем текущую книгу в Session при просмотре
             Session["CurrentBookId"] = id;
-
             return View(book);
         }
 
-        // GET: Book/Create - форма добавления
+        // ЧАСТЬ I: форма добавления
         public ActionResult Create()
         {
             return View();
@@ -82,7 +107,7 @@ namespace PublishingHouse.Controllers
             return View(book);
         }
 
-        // GET: Book/Edit/{id} - форма редактирования
+        // ЧАСТЬ I: форма редактирования
         public ActionResult Edit(int? id)
         {
             if (id == null)

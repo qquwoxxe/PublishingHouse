@@ -6,44 +6,11 @@
 
 <h2>Информация о книге</h2>
 
-@if (TempData["Success"] != null)
-{
-    <div class="alert alert-success">
-        @TempData["Success"]
-    </div>
-}
+@* ЧАСТЬ I: вариант Б - LabelForModel и DisplayForModel *@
+@Html.LabelForModel("Данные книги")
+@Html.DisplayForModel()
 
-<div class="card">
-    <div class="card-body">
-        <dl class="row">
-            <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Id)</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(m => m.Id)</dd>
-
-            <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Title)</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(m => m.Title)</dd>
-
-            <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Author)</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(m => m.Author)</dd>
-
-            <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Genre)</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(m => m.Genre)</dd>
-
-            <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Year)</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(m => m.Year)</dd>
-
-            <dt class="col-sm-3">@Html.DisplayNameFor(m => m.PageCount)</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(m => m.PageCount)</dd>
-
-            <dt class="col-sm-3">@Html.DisplayNameFor(m => m.ISBN)</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(m => m.ISBN)</dd>
-
-            <dt class="col-sm-3">@Html.DisplayNameFor(m => m.Price)</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(m => m.Price)</dd>
-        </dl>
-    </div>
-</div>
-
-<p class="mt-3">
-    @Html.ActionLink("✏️ Редактировать", "Edit", new { id = Model.Id }, new { @class = "btn btn-warning" }) |
-    @Html.ActionLink("◀️ Назад к списку", "Index", null, new { @class = "btn btn-secondary" })
+<p>
+    @Html.ActionLink("Редактировать", "Edit", new { id = Model.Id }) |
+    @Html.ActionLink("Назад к списку", "Index")
 </p>
